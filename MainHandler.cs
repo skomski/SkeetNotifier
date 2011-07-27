@@ -9,19 +9,17 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
+using Helper;
 using Helper.Extensions;
 using NLog;
 using Newtonsoft.Json;
 using SkeetNotifier.Properties;
 
-using Settings = SkeetNotifier.Properties.Settings;
-using Application = System.Windows.Forms.Application;
-
 namespace SkeetNotifier
 {
     internal class MainHandler
     {
-        readonly NotifyIcon _notifyIcon = new NotifyIcon{Text = Application.ProductName,Visible = true,Icon = Resources.Icon};
+        readonly NotifyIcon _notifyIcon = new NotifyIcon { Text = Application.ProductName, Visible = true, Icon = Resources.Icon };
         readonly BackgroundWorker _backgroundWorker = new BackgroundWorker();
         readonly Timer _updateTimer = new Timer{Interval = (int)new TimeSpan(0,10,0).TotalMilliseconds,Enabled = true};
 
@@ -78,16 +76,16 @@ namespace SkeetNotifier
             var contextMenu = new ContextMenuStrip {ShowImageMargin = false};
 
             var exitMenuItem = new ToolStripButton("Close"){Image = Resources.Exit,AutoToolTip = false};
-            exitMenuItem.Click += (s, a) => Application.Exit();
+            exitMenuItem.Click += (s, a) => System.Windows.Forms.Application.Exit();
 
             var refreshMenuItem = new ToolStripButton("Refresh"){Image = Resources.Refresh,AutoToolTip = false};
             refreshMenuItem.Click += (s, a) => _backgroundWorker.RunWorker();
 
-            var autostartMenuItem = new ToolStripButton("Autostart") { Image = Resources.AutoStart, AutoToolTip = false, Checked = Helper.Extensions.Application.GetAutoStart() };
+            var autostartMenuItem = new ToolStripButton("Autostart") { Image = Resources.AutoStart, AutoToolTip = false, Checked = AutoStart.GetAutoStart(Application.ProductName) };
             autostartMenuItem.Click += (s, a) =>
                                            {
-                                               Helper.Extensions.Application.SetAutoStart(!autostartMenuItem.Checked);
-                                               autostartMenuItem.Checked = Helper.Extensions.Application.GetAutoStart();
+                                               AutoStart.SetAutoStart(!autostartMenuItem.Checked,Application.ProductName,Application.ExecutablePath);
+                                               autostartMenuItem.Checked = AutoStart.GetAutoStart(Application.ProductName);
                                            };
 
             _notifyIcon.ContextMenuStrip = contextMenu;
